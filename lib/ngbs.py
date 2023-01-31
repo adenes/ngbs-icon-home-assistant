@@ -66,7 +66,7 @@ class NGBSController:
                 self._base_address + address,
                 value,
             )
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
 
     async def update(self):
         water_temperature = await self.read_register(0x0011)
