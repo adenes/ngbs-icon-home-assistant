@@ -1,4 +1,5 @@
 {
+  "version": "0.1.0",
   "domain": "ngbs",
   "name": "ngbs_icon",
   "config_flow": true,
