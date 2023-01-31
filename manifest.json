@@ -1,0 +1,13 @@
+{
+  "domain": "ngbs",
+  "name": "ngbs_icon",
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/ngbs",
+  "requirements": ["pyModbusTCP==v0.2.0"],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": ["@adenes"],
+  "iot_class": "local_polling"
+}
