@@ -1,7 +1,6 @@
 """Support for NGBS iCON Modbus TCP Thermostats."""
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 import voluptuous as vol
@@ -13,14 +12,6 @@ from homeassistant.components.climate.const import (
     HVACAction,
     HVACMode,
 )
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.components.sensor import (
-    PLATFORM_SCHEMA,
-    SensorDeviceClass,
-    SensorEntity,
-    SensorStateClass,
-)
-
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -29,7 +20,6 @@ from homeassistant.const import (
     CONF_PORT,
     PRECISION_HALVES,
     TEMP_CELSIUS,
-    UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
@@ -39,11 +29,9 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from .const import DOMAIN, DEVICE_INFO
 from .lib.ngbs import NGBSThermostat
 
-_LOGGER = logging.getLogger(__name__)
-
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
-        vol.Required(CONF_HOST, default="192.168.0.104"): cv.string,
+        vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_PORT, default=502): cv.port,
     }
 )
@@ -60,11 +48,7 @@ async def async_setup_platform(
     async_add_entities: AddEntitiesCallback,
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
-    """Old way of setting up the Daikin HVAC platform.
-
-    Can only be called when a user accidentally mentions the platform in their
-    config. But even in that case it would have been ignored.
-    """
+    pass
 
 
 async def async_setup_entry(
@@ -157,10 +141,6 @@ class NGBSClimate(ClimateEntity):
         self._attr_preset_mode = preset_mode
         await self._thermostat.set_eco(preset_mode == PRESET_ECO)
         # await self.async_update()
-
-    # async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
-    #     """Set HVAC mode."""
-    #     await self._set({ATTR_HVAC_MODE: hvac_mode})
 
     async def async_update(self):
         """Retrieve latest state."""

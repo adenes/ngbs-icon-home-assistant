@@ -1,38 +1,23 @@
 """Support for NGBS iCON Modbus TCP Thermostats."""
 from __future__ import annotations
 
-import logging
-
-import voluptuous as vol
-
-from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.sensor import (
-    PLATFORM_SCHEMA,
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
 
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    ATTR_TEMPERATURE,
-    CONF_HOST,
-    CONF_PORT,
-    PRECISION_HALVES,
-    TEMP_CELSIUS,
     UnitOfTemperature,
     PERCENTAGE,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .const import DOMAIN, DEVICE_INFO
-from .lib.ngbs import NGBSThermostat, NGBSController
-
-_LOGGER = logging.getLogger(__name__)
+from .lib.ngbs import NGBSController
 
 
 async def async_setup_platform(
@@ -41,11 +26,7 @@ async def async_setup_platform(
     async_add_entities: AddEntitiesCallback,
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
-    """Old way of setting up the Daikin HVAC platform.
-
-    Can only be called when a user accidentally mentions the platform in their
-    config. But even in that case it would have been ignored.
-    """
+    pass
 
 
 async def async_setup_entry(
@@ -103,8 +84,6 @@ async def async_setup_entry(
 
 
 class NGBSSensor(SensorEntity):
-    """Exposes NGBS iCON thermostat's current temperature as sensor."""
-
     def __init__(
         self,
         device_class: SensorDeviceClass,
@@ -112,7 +91,6 @@ class NGBSSensor(SensorEntity):
         value_callback,
         update_callback,
     ):
-        """Initialize the sensor."""
         self._attr_name = unique_id
         self._attr_unique_id = unique_id
         self._attr_device_class = device_class

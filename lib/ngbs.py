@@ -3,8 +3,6 @@ import asyncio
 
 from homeassistant.core import HomeAssistant
 
-# from homeassistant.components.modbus.modbus import ModbusHub
-
 
 class NGBSController:
     _base_address = 0x0100
@@ -24,13 +22,11 @@ class NGBSController:
         )
 
         thermostats = await self.read_register(0x0008)
-        index = 0
         self._thermostats = []
-        for x in range(8):
+        for index in range(8):
             if thermostats & 1 == 0:
                 self._thermostats += [NGBSThermostat(self, index)]
             thermostats >>= 1
-            index += 1
 
     def get_thermostats(self):
         return self._thermostats
@@ -47,7 +43,6 @@ class NGBSController:
             ret = await self._hass.async_add_executor_job(
                 self._read_modbus_holding_registers, address, count
             )
-            # await asyncio.sleep(3)
         return ret
 
     def _read_modbus_holding_registers(self, address, count):
@@ -110,7 +105,6 @@ class NGBSThermostat:
                 return self._target_heating_normal
 
     async def set_target_temperature(self, temperature: float):
-        self._log("set target temp: ", temperature)
         addr = 0x0083 + (self._index * 4)
         # HEATING  NORMAL  -> +0
         # COOLING  NORMAL  -> +1
@@ -155,8 +149,6 @@ class NGBSThermostat:
             0x0031 + 4 * self._index, 4
         )
 
-        self._log(target_temperatures)
-
         if target_temperatures:
             [
                 self._target_heating_normal,
@@ -174,8 +166,3 @@ class NGBSThermostat:
         tmp = await self._controller.read_register(0x0000) or 0
         tmp |= await self._controller.read_register(0x0001) or 0
         self._idle = tmp >> self._index & 1 == 0
-
-    def _log(self, *msg):
-        if msg is None:
-            msg = "None"
-        # print(self.get_unique_id(), msg)
