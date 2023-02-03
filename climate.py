@@ -48,10 +48,9 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     }
 )
 
-HA_STATE_TO_CURRENT_HVAC = {
+HVAC_MODE_TO_HVAC_ACTION = {
     HVACMode.COOL: HVACAction.COOLING,
     HVACMode.HEAT: HVACAction.HEATING,
-    HVACMode.OFF: HVACAction.OFF,
 }
 
 
@@ -142,12 +141,16 @@ class NGBSClimate(ClimateEntity):
         await self.async_update()
 
     @property
-    def hvac_mode(self) -> HVACMode:
+    def hvac_mode(self) -> HVACMode | str | None:
         """HVAC mode getter."""
         return HVACMode.COOL if self._thermostat.is_cooling() else HVACMode.HEAT
 
-    def set_hvac_mode(self, hvac_mode: HVACMode) -> None:
-        """Set hvac mode."""
+    @property
+    def hvac_action(self) -> HVACAction | str | None:
+        """HVAC action getter."""
+        if self._thermostat.is_idle():
+            return HVACAction.IDLE
+        return HVAC_MODE_TO_HVAC_ACTION[self.hvac_mode]
 
     async def async_set_preset_mode(self, preset_mode):
         """Async set preset mode."""

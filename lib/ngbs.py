@@ -12,9 +12,6 @@ class NGBSController:
     _thermostats = []
     _water_temperature = 0.0
 
-    # def __init__(self, hub: ModbusHub):
-    #     self._hub = hub
-
     def __init__(self, hass: HomeAssistant, host: str, port: int):
         self._hass = hass
         self._host = host
@@ -76,30 +73,6 @@ class NGBSController:
     def get_water_temperature(self):
         return self._water_temperature
 
-    # async def read_registers(self, address, count):
-    #     async with async_timeout.timeout(10):
-    #         return self._modbus_client.read_holding_registers(
-    #             self._base_address + address, count
-    #         )
-
-    # async def write_register(self, address, value: int):
-    #     print("write reg", address, value)
-    #     async with async_timeout.timeout(10):
-    #         self._modbus_client.write_single_register(
-    #             self._base_address + address, value
-    #         )
-
-    # def _read_registers(self, address, count):
-    #     return self._modbus_client.read_holding_registers(
-    #         self._base_address + address, count
-    #     )
-
-    # def _write_register(self, address, value: int):
-    #     print("write reg", address, value)
-    #     self._modbus_client.write_single_register(
-    #         self._base_address + address, value
-    #     )
-
 
 class NGBSThermostat:
     _current_temperature = 0.0
@@ -110,6 +83,7 @@ class NGBSThermostat:
     _target_cooling_eco = 0.0
     _cooling = False
     _eco = False
+    _idle = False
 
     def __init__(self, controller: NGBSController, index: int):
         self._controller = controller
@@ -150,17 +124,6 @@ class NGBSThermostat:
 
         normalized_temp = int(temperature * 10)
         await self._controller.write_register(addr, normalized_temp)
-        # self.update()
-        # if self._cooling:
-        #     if self._eco:
-        #         self._target_cooling_eco = temperature
-        #     else:
-        #         self._target_cooling_normal = temperature
-        # else:
-        #     if self._eco:
-        #         self._target_heating_eco = temperature
-        #     else:
-        #         self._target_heating_normal = temperature
 
     def get_current_temperature(self):
         return self._current_temperature
@@ -176,6 +139,9 @@ class NGBSThermostat:
 
     async def set_eco(self, eco: bool):
         await self._controller.write_register(0x0063 + self._index, 1 if eco else 0)
+
+    def is_idle(self):
+        return self._idle
 
     async def update(self):
         current_temperature = await self._controller.read_register(0x0019 + self._index)
@@ -205,6 +171,10 @@ class NGBSThermostat:
 
         cooling = await self._controller.read_register(0x0006)
         self._cooling = cooling >> self._index & 1 == 1 if cooling else False
+
+        tmp = await self._controller.read_register(0x0000) or 0
+        tmp |= await self._controller.read_register(0x0001) or 0
+        self._idle = tmp >> self._index & 1 == 0
 
     def _log(self, *msg):
         if msg is None:
