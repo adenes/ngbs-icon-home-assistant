@@ -138,7 +138,7 @@ class NGBSClimate(ClimateEntity):
         if (temperature := kwargs.get(ATTR_TEMPERATURE)) is None:
             return
         await self._thermostat.set_target_temperature(temperature)
-        await self.async_update()
+        # await self.async_update()
 
     @property
     def hvac_mode(self) -> HVACMode | str | None:
@@ -156,7 +156,7 @@ class NGBSClimate(ClimateEntity):
         """Async set preset mode."""
         self._attr_preset_mode = preset_mode
         await self._thermostat.set_eco(preset_mode == PRESET_ECO)
-        await self.async_update()
+        # await self.async_update()
 
     # async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
     #     """Set HVAC mode."""

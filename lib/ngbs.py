@@ -41,7 +41,6 @@ class NGBSController:
             return None
         else:
             return x[0]
-        # return self.read_registers(address, 1)[0]
 
     async def read_registers(self, address, count):
         async with self._lock:
@@ -63,7 +62,7 @@ class NGBSController:
                 self._base_address + address,
                 value,
             )
-            await asyncio.sleep(3)
+            await asyncio.sleep(5)
 
     async def update(self):
         water_temperature = await self.read_register(0x0011)
