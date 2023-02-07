@@ -57,7 +57,7 @@ class NGBSController:
                 self._base_address + address,
                 value,
             )
-            await asyncio.sleep(10)
+            await asyncio.sleep(9)
 
     async def update(self):
         water_temperature = await self.read_register(0x0011)
@@ -71,10 +71,12 @@ class NGBSController:
 class NGBSThermostat:
     _current_temperature = 0.0
     _humidity = 0.0
-    _target_heating_normal = 0.0
-    _target_cooling_normal = 0.0
-    _target_heating_eco = 0.0
-    _target_cooling_eco = 0.0
+    _target_temperatures = [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+    ]  # heating normal, cooling normal, heating eco, cooling eco
     _cooling = False
     _eco = False
     _idle = False
@@ -92,28 +94,26 @@ class NGBSThermostat:
     def get_controller(self):
         return self._controller
 
-    def get_target_temperature(self) -> float:
-        if self._cooling:
-            if self._eco:
-                return self._target_cooling_eco
-            else:
-                return self._target_cooling_normal
-        else:
-            if self._eco:
-                return self._target_heating_eco
-            else:
-                return self._target_heating_normal
-
-    async def set_target_temperature(self, temperature: float):
-        addr = 0x0083 + (self._index * 4)
+    def _get_temperature_offset(self):
         # HEATING  NORMAL  -> +0
         # COOLING  NORMAL  -> +1
         # HEATING  ECO     -> +2
         # COOLING  ECO  -> +3
+        ret = 0
         if self._eco:
-            addr += 2
+            ret += 2
         if self._cooling:
-            addr += 1
+            ret += 1
+        return ret
+
+    def get_target_temperature(self) -> float:
+        offset = self._get_temperature_offset()
+        return self._target_temperatures[offset]
+
+    async def set_target_temperature(self, temperature: float):
+        offset = self._get_temperature_offset()
+        addr = 0x0083 + (self._index * 4)
+        addr += offset
 
         normalized_temp = int(temperature * 10)
         await self._controller.write_register(addr, normalized_temp)
@@ -148,14 +148,8 @@ class NGBSThermostat:
         target_temperatures = await self._controller.read_registers(
             0x0031 + 4 * self._index, 4
         )
-
         if target_temperatures:
-            [
-                self._target_heating_normal,
-                self._target_cooling_normal,
-                self._target_heating_eco,
-                self._target_cooling_eco,
-            ] = [float(x) / 10 for x in target_temperatures]
+            self._target_temperatures = [float(x) / 10 for x in target_temperatures]
 
         eco = await self._controller.read_register(0x0004)
         self._eco = eco >> self._index & 1 == 1 if eco else False
