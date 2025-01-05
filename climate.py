@@ -19,7 +19,7 @@ from homeassistant.const import (
     CONF_HOST,
     CONF_PORT,
     PRECISION_HALVES,
-    TEMP_CELSIUS,
+    UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
@@ -74,7 +74,7 @@ class NGBSClimate(ClimateEntity):
     )
 
     _attr_target_temperature_step = PRECISION_HALVES
-    _attr_temperature_unit = TEMP_CELSIUS
+    _attr_temperature_unit = UnitOfTemperature.CELSIUS
 
     _attr_preset_modes = [PRESET_COMFORT, PRESET_ECO]
     _attr_preset_mode = PRESET_COMFORT
@@ -100,7 +100,7 @@ class NGBSClimate(ClimateEntity):
     @property
     def temperature_unit(self):
         """Get the temp unit."""
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
 
     @property
     def current_temperature(self):
