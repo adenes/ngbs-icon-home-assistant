@@ -16,8 +16,11 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
+from datetime import timedelta
 from .const import DOMAIN, DEVICE_INFO
 from .lib.ngbs import NGBSController
+
+SCAN_INTERVAL = timedelta(seconds=5)
 
 
 async def async_setup_platform(

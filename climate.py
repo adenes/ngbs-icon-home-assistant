@@ -1,6 +1,7 @@
 """Support for NGBS iCON Modbus TCP Thermostats."""
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import Any
 
 import voluptuous as vol
@@ -35,6 +36,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Required(CONF_PORT, default=502): cv.port,
     }
 )
+
+SCAN_INTERVAL = timedelta(seconds=5)
 
 HVAC_MODE_TO_HVAC_ACTION = {
     HVACMode.COOL: HVACAction.COOLING,
@@ -122,12 +125,19 @@ class NGBSClimate(ClimateEntity):
         if (temperature := kwargs.get(ATTR_TEMPERATURE)) is None:
             return
         await self._thermostat.set_target_temperature(temperature)
-        # await self.async_update()
+        await self.async_update()
 
     @property
     def hvac_mode(self) -> HVACMode | str | None:
         """HVAC mode getter."""
         return HVACMode.COOL if self._thermostat.is_cooling() else HVACMode.HEAT
+
+    async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
+        """Async set hvac mode."""
+        if hvac_mode not in self._attr_hvac_modes:
+            return
+        await self._thermostat.set_hvac_mode(hvac_mode == HVACMode.COOL)
+        await self.async_update()
 
     @property
     def hvac_action(self) -> HVACAction | str | None:
@@ -136,11 +146,16 @@ class NGBSClimate(ClimateEntity):
             return HVACAction.IDLE
         return HVAC_MODE_TO_HVAC_ACTION[self.hvac_mode]
 
+    @property
+    def preset_mode(self) -> str | None:
+        """Return preset mode."""
+        return PRESET_ECO if self._thermostat.is_eco() else PRESET_COMFORT
+
     async def async_set_preset_mode(self, preset_mode):
         """Async set preset mode."""
         self._attr_preset_mode = preset_mode
         await self._thermostat.set_eco(preset_mode == PRESET_ECO)
-        # await self.async_update()
+        await self.async_update()
 
     async def async_update(self):
         """Retrieve latest state."""

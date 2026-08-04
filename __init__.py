@@ -13,7 +13,8 @@ from .lib.ngbs import NGBSController
 _LOGGER = logging.getLogger(__name__)
 
 PARALLEL_UPDATES = 0
-MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=60)
+SCAN_INTERVAL = timedelta(seconds=5)
+MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=5)
 
 PLATFORMS = [Platform.CLIMATE, Platform.SENSOR]
 DOMAIN = "ngbs"
