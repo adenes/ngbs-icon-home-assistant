@@ -1,0 +1,15 @@
+{
+  "domain": "ngbs",
+  "name": "NGBS iCON",
+  "version": "0.1.0",
+  "documentation": "https://github.com/adenes/ngbs-icon-home-assistant",
+  "issue_tracker": "https://github.com/adenes/ngbs-icon-home-assistant/issues",
+  "codeowners": [
+    "@adenes"
+  ],
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "requirements": [
+    "pyModbusTCP==0.2.0"
+  ]
+}
