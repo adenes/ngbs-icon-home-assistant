@@ -26,32 +26,14 @@ NGBS_CONFIG_SCHEMA = vol.Schema(
 )
 
 
-class NGBSDevice:
-    """Placeholder class to make tests pass.
-
-    TODO Remove this placeholder class and replace with things from your PyPI package.
-    """
-
-    def __init__(self, hass: HomeAssistant, host: str, port: int) -> None:
-        """Initialize."""
-        self.host = host
-        self.port = port
-        self.ngbs_device = NGBSController(hass, self.host, self.port)
-        self.ngbs_device.initialize()
-
-
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     """Validate the user input allows us to connect.
 
-    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
+    Data has the keys from NGBS_CONFIG_SCHEMA with values provided by the user.
     """
-    # If your PyPI package is not built with async, pass your methods
-    # to the executor:
-    # await hass.async_add_executor_job(
-    #     your_validate_func, data["username"], data["password"]
-    # )
-
-    # NGBSDevice(hass, data["host"], data["port"])
+    controller = NGBSController(hass, data[CONF_HOST], data[CONF_PORT])
+    if not await controller.async_test_connection():
+        raise CannotConnect
 
     return {"title": "NGBS iCON Controller"}
 

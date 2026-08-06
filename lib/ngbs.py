@@ -39,6 +39,19 @@ class NGBSController:
     def get_thermostats(self):
         return self._thermostats
 
+    async def async_test_connection(self) -> bool:
+        """Attempt to connect to the device and read a register.
+
+        Used by the config flow to validate host/port before creating
+        the config entry. Returns True on a successful read, False
+        otherwise.
+        """
+        if self._modbus_client is None:
+            self._modbus_client = ModbusClient(
+                host=self._host, port=self._port, auto_open=True, timeout=5
+            )
+        return await self.read_register(0x0008) is not None
+
     async def read_register(self, address) -> int:
         x = await self.read_registers(address, 1)
         if x is None:
