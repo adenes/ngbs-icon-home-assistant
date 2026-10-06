@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="icon.png" alt="NGBS iCON Logo" width="128" height="128">
+  <img src="https://raw.githubusercontent.com/adenes/ngbs-icon-home-assistant/main/icon.png" alt="NGBS iCON Logo" width="128" height="128">
 </p>
 
 # NGBS iCON Integration for Home Assistant
